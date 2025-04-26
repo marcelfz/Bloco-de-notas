@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+use function Laravel\Prompts\password;
 
 class AuthController extends Controller
 {
@@ -41,16 +42,40 @@ class AuthController extends Controller
         $username = $request->input('text_username');
         $password = $request->input('text_password');
 
-        // get all the users from the database
-        // $users = User::all()->toArray();
         
-        // as an object instance of the models class
-        $userModel = new User();
-        $users = $userModel->all()->toArray();
+        // check if user exists
+       $user = User::where('username', $username)
+                    ->where('deleted_at', NULL)
+                    ->first();
 
-        echo '<pre>';
+        if(!$user){
+            return redirect() // redireciona
+            ->back() // para tras
+            ->withInput() // guarda input
+            ->with('loginError', 'Username ou password incorretos'); // msg error
+        }
 
-        print_r($users);
+        // check if password is correct
+        if(!password_verify($password, $user->password)){
+            return redirect() // redireciona
+            ->back() // para tras
+            ->withInput() // guarda input
+            ->with('loginError', 'Username ou password incorretos'); // msg error
+        }
+
+        // update last login 
+        $user->last_login = date('Y-m-d H:i:s');
+        $user->save();
+
+        // login user
+        session([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username
+            ]
+        ]);
+
+        echo 'LOGIN COM SUCESSO!';
 
     }
 }
