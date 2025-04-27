@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Note;
 use App\Services\Operations;
 use App\User;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -26,7 +27,38 @@ class MainController extends Controller
     }
 
     public function newNoteSubmit(Request $request){
-        echo "I am creating a new note.";
+        //validate request
+        $request->validate(
+            // rules
+           [
+            'text_title' => 'required|min:3|max:200',
+            'text_note' => 'required|min:3|max:3000',
+           ], 
+           // error messages
+           [
+            'text_title.required' => "O título é obrigatório",
+            'text_title.min' => "O título deve ter pelo menos :min  caracteres",
+            'text_title.max' => "O título deve ter no máximo :max  caracteres",
+            'text_note.required' => "A nota é obrigatória",
+            'text_note.min' => "A nota deve ter pelo menos :min  caracteres",
+            'text_note.max' => "A nota deve ter no máximo :max  caracteres",
+           ]
+        );
+
+        echo "OK";
+
+        // get user id
+        $id = session('user.id');
+
+        // create new note
+        $note = new Note();
+        $note->user_id = $id;
+        $note->title = $request->text_title;
+        $note->text = $request->text_note;
+        $note->save();
+
+        //redirect to home
+        return redirect()->route('home');
     }
 
     public function editNote($id){
@@ -41,7 +73,5 @@ class MainController extends Controller
         $id = Operations::decryptId($id);
         echo "I am deleting note with id = $id";
     }
-
-
 
 }
