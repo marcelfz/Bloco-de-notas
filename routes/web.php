@@ -22,10 +22,11 @@ Route::middleware([CheckIsLogged::class])->group(function(){
     Route::post('/newNoteSubmit', [MainController::class, 'newNoteSubmit'])->name('newNoteSubmit');
 
     // edit note
-    Route::get('/editNote{id}', [MainController::class, 'editNote'])->name('edit');
+    Route::get('/editNote/{id}', [MainController::class, 'editNote'])->name('edit');
+    Route::get('/editNoteSubmit', [MainController::class, 'editNoteSubmit'])->name('editNoteSubmit');
 
     // delete note
-    Route::get('/deleteNote{id}', [MainController::class, 'deleteNote'])->name('delete');
+    Route::get('/deleteNote/{id}', [MainController::class, 'deleteNote'])->name('delete');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
